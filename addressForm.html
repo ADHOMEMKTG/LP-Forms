@@ -1,0 +1,325 @@
+<div style="
+  font-family: Poppins, sans-serif;
+  display: flex;
+  justify-content: flex-end;
+  align-items: stretch;
+  width: 100%
+">
+
+  <div id="form-wrapper" style="
+    background-color: #f8f8f8;
+    padding: 40px;
+    border-radius: 20px;
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  ">
+
+    <h1 style="
+      color: var(--colors--primary--primary);
+      font-size: clamp(24px, 4vw, 32px);
+      margin: 0;
+    " id="form-title">
+      Get In Touch
+    </h1>
+
+    <form id="contact-form" method="post" style="
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      width: 100%;
+      margin: 0;
+    ">
+
+      <div style="display: flex; flex-direction: column;">
+        <label style="color: var(--colors--primary--primary); font-weight: 600; margin-bottom: 6px;" for="name">Name</label>
+        <input type="text" name="name" required style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #ccc;">
+      </div>
+
+      <div style="display: flex; flex-direction: column;">
+        <label style="color: var(--colors--primary--primary); font-weight: 600; margin-bottom: 6px;" for="phone">Phone</label>
+        <input type="text" name="phone" required style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #ccc;">
+      </div>
+
+      <div style="display: flex; flex-direction: column;">
+        <label style="color: var(--colors--primary--primary); font-weight: 600; margin-bottom: 6px;" for="email">Email Address</label>
+        <input type="email" name="email" required style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #ccc;">
+      </div>
+
+      <div style="display: flex; flex-direction: column; position: relative;">
+        <label style="color: var(--colors--primary--primary); font-weight: 600; margin-bottom: 6px;" for="address-autocomplete">Address</label>
+        <input required type="text" id="address-autocomplete" autocomplete="off" placeholder="Start typing your address..." style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #ccc;">
+        <div id="address-suggestions" style="
+          position: absolute;
+          top: 100%;
+          left: 0;
+          right: 0;
+          background: white;
+          border: 1px solid #ccc;
+          border-radius: 10px;
+          margin-top: 4px;
+          max-height: 240px;
+          overflow-y: auto;
+          z-index: 10;
+          display: none;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        "></div>
+      </div>
+
+      <input type="hidden" name="street">
+      <input type="hidden" name="city">
+      <input type="hidden" name="state">
+      <input type="hidden" name="zip">
+      <input type="hidden" name="country">
+      
+      <div style="display: flex; flex-direction: column;">
+        <label style="color: var(--colors--primary--primary); font-weight: 600; margin-bottom: 6px;" for="message">Message</label>
+        <textarea rows="2" name="message" style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #ccc; resize: none;"></textarea>
+      </div>
+
+      <div style="display: flex; align-items: flex-start; gap: 10px;">
+        <input type="checkbox" required style="margin-top: 3px;" name="consent">
+        <label style="color: var(--colors--primary--primary); font-size: 13px;" for="consent">
+          I consent to being contacted by <strong>Bob Jenson</strong>
+        </label>
+      </div>
+
+      <button type="button" id="form-submit-btn" style="
+        width: 100%;
+        padding: 14px;
+        border: none;
+        border-radius: 10px;
+        background-color: var(--colors--primary--primary);
+        color: #fff;
+        font-size: 15px;
+        font-weight: bold;
+        cursor: pointer;
+      ">
+        SEND MESSAGE
+      </button>
+
+    </form>
+
+    <!-- SUCCESS MESSAGE -->
+    <div id="form-success" style="
+      display: none;
+      width: 100%;
+      height: 64px;
+      margin: 0 auto;
+      background-color: #E6F4EA;
+      color: #2E7D32;
+      font-size: 16px;
+      font-weight: 400;
+      border-radius: 12px;
+      text-align: center;
+      align-items: center;
+      justify-content: center;
+      padding: 0 16px;
+      box-sizing: border-box;
+    ">
+      Thank you! Your form was successfully submitted. We'll contact you soon.
+    </div>
+
+    <!-- ERROR -->
+    <div id="form-error" style="
+      display: none;
+      background: #fdecea;
+      color: #c62828;
+      padding: 14px;
+      border-radius: 10px;
+      font-weight: 400;
+      text-align: center;
+    ">
+      Oops! Something went wrong.
+    </div>
+
+  </div>
+</div>
+
+<script>
+(function () {
+  var scriptEl = document.currentScript;
+  var root = scriptEl.parentElement;
+
+  var form          = root.querySelector('form');
+  var submitButton  = root.querySelector('#form-submit-btn');
+  var success       = root.querySelector('#form-success');
+  var error         = root.querySelector('#form-error');
+  var formTitle     = root.querySelector('#form-title');
+
+  if (!form || !submitButton) return;
+
+  (function setupAddressAutocomplete() {
+    var addressInput   = root.querySelector('#address-autocomplete');
+    var suggestionsBox = root.querySelector('#address-suggestions');
+    if (!addressInput || !suggestionsBox) return;
+
+    var debounceTimer;
+
+    addressInput.addEventListener('input', function () {
+      var query = addressInput.value.trim();
+      clearTimeout(debounceTimer);
+
+      if (query.length < 3) {
+        suggestionsBox.style.display = 'none';
+        return;
+      }
+
+      debounceTimer = setTimeout(function () {
+        fetch('https://photon.komoot.io/api/?q=' + encodeURIComponent(query) + '&limit=5&lang=en')
+          .then(function (r) { return r.json(); })
+          .then(function (data) { renderSuggestions(data.features || []); })
+          .catch(function () { suggestionsBox.style.display = 'none'; });
+      }, 250);
+    });
+
+    function formatDisplay(p) {
+      var parts = [];
+      if (p.housenumber && p.street) parts.push(p.housenumber + ' ' + p.street);
+      else if (p.street) parts.push(p.street);
+      else if (p.name) parts.push(p.name);
+      if (p.city)     parts.push(p.city);
+      if (p.state)    parts.push(p.state);
+      if (p.postcode) parts.push(p.postcode);
+      if (p.country)  parts.push(p.country);
+      return parts.join(', ');
+    }
+
+    function renderSuggestions(features) {
+      if (!features.length) { suggestionsBox.style.display = 'none'; return; }
+
+      suggestionsBox.innerHTML = '';
+      features.forEach(function (f) {
+        var p = f.properties;
+        var item = document.createElement('div');
+        item.style.cssText = 'padding: 10px 12px; cursor: pointer; border-bottom: 1px solid #eee; font-size: 14px;';
+        item.textContent = formatDisplay(p);
+        item.addEventListener('mouseenter', function () { item.style.background = '#f0f0f0'; });
+        item.addEventListener('mouseleave', function () { item.style.background = 'white'; });
+        item.addEventListener('mousedown', function (e) {
+          e.preventDefault(); // keeps input from blurring before the click registers
+          selectSuggestion(p);
+        });
+        suggestionsBox.appendChild(item);
+      });
+      suggestionsBox.style.display = 'block';
+    }
+
+    function selectSuggestion(p) {
+      var street = '';
+      if (p.housenumber && p.street) street = p.housenumber + ' ' + p.street;
+      else if (p.street) street = p.street;
+      else if (p.name) street = p.name;
+
+      addressInput.value = formatDisplay(p);
+      form.querySelector("[name='street']").value  = street;
+      form.querySelector("[name='city']").value    = p.city     || '';
+      form.querySelector("[name='state']").value   = p.state    || '';
+      form.querySelector("[name='zip']").value     = p.postcode || '';
+      form.querySelector("[name='country']").value = p.country  || '';
+      suggestionsBox.style.display = 'none';
+    }
+
+    document.addEventListener('click', function (e) {
+      if (!suggestionsBox.contains(e.target) && e.target !== addressInput) {
+        suggestionsBox.style.display = 'none';
+      }
+    });
+  })();
+
+  // Stop clicks on the form from bubbling to any parent link/wrapper
+  form.addEventListener('click', function (e) { e.stopPropagation(); });
+  const phoneTextBox = form.querySelector("[name='phone']");
+  const phoneField = window.intlTelInput(phoneTextBox, {
+    loadUtils: () => import("https://cdn.jsdelivr.net/npm/intl-tel-input@29.1.1/dist/js/utils.js"),
+    initialCountry: "us"
+  });
+
+  submitButton.addEventListener('click', function () {
+   	if(!phoneField.isValidNumber()) {
+      phoneTextBox.setCustomValidity("Please enter a valid phone number")
+      phoneTextBox.reportValidity()
+      function handlePhoneUpdate() {
+        if(phoneField.isValidNumber()) {
+          phoneTextBox.setCustomValidity("")
+          phoneTextBox.removeEventListener('input', handlePhoneUpdate)
+        }
+      }
+      phoneTextBox.addEventListener('input', handlePhoneUpdate)
+      return
+    }
+    if (!form.checkValidity()) { form.reportValidity(); return; }
+    if (form.dataset.submitting === 'true') return;
+    form.dataset.submitting = 'true';
+
+    if (success) success.style.display = 'none';
+    if (error) error.style.display = 'none';
+
+    submitButton.disabled = true;
+    submitButton.style.opacity = '0.7';
+    submitButton.style.cursor = 'not-allowed';
+    submitButton.textContent = 'SENDING...';
+
+    var user_data = {
+      Name:    form.querySelector("[name='name']").value  || '',
+      Phone:   phoneField.getNumber() || form.querySelector("[name='phone']").value || '',
+      Email:   form.querySelector("[name='email']").value || '',
+      Message: form.querySelector("[name='message']").value || '',
+      // Address fields flattened — names chosen to match the parser's field lists
+      street:  form.querySelector("[name='street']").value  || '',
+      city:    form.querySelector("[name='city']").value    || '',
+      state:   form.querySelector("[name='state']").value   || '',
+      zip:     form.querySelector("[name='zip']").value     || '',
+      country: form.querySelector("[name='country']").value || '',
+      contact_consent: form.querySelector("[name='consent']").checked ? 'I Agree' : '',
+    };
+
+    // Tell the global shim which instance to call back
+    window.__pfActiveForm = { onSuccess: handleSuccess, onError: handleError };
+
+    document.dispatchEvent(new CustomEvent('pfFormSent', {
+      detail: { user_data: user_data, form: form }
+    }));
+  });
+
+  function resetButton() {
+    form.dataset.submitting = 'false';
+    submitButton.disabled = false;
+    submitButton.style.opacity = '1';
+    submitButton.style.cursor = 'pointer';
+    submitButton.textContent = 'SEND MESSAGE';
+  }
+
+  function handleSuccess() {
+    if (error) error.style.display = 'none';
+    form.style.transition = 'opacity 0.3s ease';
+    form.style.opacity = '0';
+    setTimeout(function () {
+      form.style.display = 'none';
+      if (formTitle) formTitle.style.display = 'none';
+      if (success) {
+        success.style.display = 'flex';
+        success.style.opacity = '0';
+        success.style.transition = 'opacity 0.4s ease';
+        requestAnimationFrame(function () { success.style.opacity = '1'; });
+      }
+      form.dataset.submitting = 'false';
+    }, 300);
+  }
+
+  function handleError() {
+    if (error) error.style.display = 'block';
+    resetButton();
+  }
+})();
+
+// Global shim — ProfitFill calls these, we route to whichever form submitted
+window.formSubmissionSuccess = function () {
+  if (window.__pfActiveForm) window.__pfActiveForm.onSuccess();
+};
+window.formSubmissionError = function () {
+  if (window.__pfActiveForm) window.__pfActiveForm.onError();
+};
+</script>
