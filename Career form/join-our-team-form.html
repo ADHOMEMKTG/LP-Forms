@@ -1,0 +1,336 @@
+<div style="
+  font-family: Poppins, sans-serif;
+  display: flex;
+  justify-content: flex-end;
+  align-items: stretch;
+  width: 100%
+">
+  <div id="form-wrapper" style="
+    background-color: #f8f8f8;
+    padding: 40px;
+    border-radius: 20px;
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  ">
+    <h1 style="
+      color: var(--colors--primary--primary);
+      font-size: clamp(24px, 4vw, 32px);
+      margin: 0;
+    " id="form-title">
+      Join Our Team
+    </h1>
+
+    <form id="contact-form" method="post" enctype="multipart/form-data" style="
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      width: 100%;
+      margin: 0;
+    ">
+      <!-- NAME -->
+      <div style="display: flex; flex-direction: column;">
+        <label style="color: var(--colors--primary--primary); font-weight: 600; margin-bottom: 6px;"
+          for="name">Name</label>
+        <input id="name" type="text" name="name" required autocomplete="name"
+          style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #ccc; box-sizing: border-box;">
+      </div>
+
+      <!-- PHONE -->
+      <div style="display: flex; flex-direction: column;">
+        <label style="color: var(--colors--primary--primary); font-weight: 600; margin-bottom: 6px;"
+          for="phone">Phone #</label>
+        <input id="phone" type="tel" name="phone" required autocomplete="tel"
+          style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #ccc; box-sizing: border-box;">
+      </div>
+
+      <!-- EMAIL -->
+      <div style="display: flex; flex-direction: column;">
+        <label style="color: var(--colors--primary--primary); font-weight: 600; margin-bottom: 6px;"
+          for="email">Email</label>
+        <input id="email" type="email" name="email" required autocomplete="email"
+          style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #ccc; box-sizing: border-box;">
+      </div>
+
+      <!-- DATE ATTENDING -->
+      <div style="display: flex; flex-direction: column;">
+        <label style="color: var(--colors--primary--primary); font-weight: 600; margin-bottom: 6px;"
+          for="date_attending">Date Attending</label>
+        <input id="date_attending" type="date" name="date_attending" required
+          style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #ccc; box-sizing: border-box; font-family: inherit;">
+      </div>
+
+      <!-- POSITIONS -->
+      <div style="display: flex; flex-direction: column;">
+        <label style="color: var(--colors--primary--primary); font-weight: 600; margin-bottom: 6px;"
+          for="positions">Position(s) interested in</label>
+        <input id="positions" type="text" name="positions" required
+          style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #ccc; box-sizing: border-box;">
+      </div>
+
+      <!-- RESUME UPLOAD -->
+      <div style="display: flex; flex-direction: column;">
+        <label style="color: var(--colors--primary--primary); font-weight: 600; margin-bottom: 6px;"
+          for="resume">Upload Resume</label>
+        <input id="resume" type="file" name="attachment" required
+          accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+          style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #ccc; background: #fff; box-sizing: border-box; font-family: inherit;">
+        <span style="font-size: 12px; color: #666; margin-top: 4px;">PDF, DOC or DOCX, up to 5 MB.</span>
+      </div>
+
+      <!-- MESSAGE -->
+      <div style="display: flex; flex-direction: column;">
+        <label style="color: var(--colors--primary--primary); font-weight: 600; margin-bottom: 6px;"
+          for="message">Message</label>
+        <textarea id="message" rows="2" name="message"
+          style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #ccc; resize: none; box-sizing: border-box; font-family: inherit;"></textarea>
+      </div>
+
+      <!-- CONSENT -->
+      <div style="display: flex; align-items: flex-start; gap: 10px;">
+        <input id="consent" type="checkbox" required style="margin-top: 3px;" name="consent">
+        <label style="color: var(--colors--primary--primary); font-size: 13px;" for="consent">
+          I consent to being contacted by <strong>Chad Love Services</strong>
+        </label>
+      </div>
+
+      <button type="button" id="form-submit-btn" style="
+        width: 100%;
+        padding: 14px;
+        border: none;
+        border-radius: 10px;
+        background-color: var(--colors--primary--primary);
+        color: #fff;
+        font-size: 15px;
+        font-weight: bold;
+        cursor: pointer;
+      ">
+        SEND MESSAGE
+      </button>
+    </form>
+
+    <!-- SUCCESS MESSAGE -->
+    <div id="form-success" style="
+      display: none;
+      width: 100%;
+      min-height: 64px;
+      margin: 0 auto;
+      background-color: #E6F4EA;
+      color: #2E7D32;
+      font-size: 16px;
+      font-weight: 400;
+      border-radius: 12px;
+      text-align: center;
+      align-items: center;
+      justify-content: center;
+      padding: 0 16px;
+      box-sizing: border-box;
+    ">
+      Thank you! Your form was successfully submitted. We'll contact you soon.
+    </div>
+
+    <!-- ERROR -->
+    <div id="form-error" style="
+      display: none;
+      background: #fdecea;
+      color: #c62828;
+      padding: 14px;
+      border-radius: 10px;
+      font-weight: 400;
+      text-align: center;
+    ">
+      Oops! Something went wrong.
+    </div>
+  </div>
+</div>
+
+<script>
+  (function () {
+    /* ============ SETTINGS ============
+       NOTIFY_ENDPOINT: your Cloudflare Worker URL (see sendgrid-worker.js).
+       NOTIFY_TOKEN: the client's encrypted email token from the Worker's /token route.
+       The real email address never appears in this page. Leave NOTIFY_TOKEN as '' to
+       turn the email off and rely only on ProfitFill. */
+    var NOTIFY_ENDPOINT = 'https://hiring-form.master-2d9.workers.dev';
+    var NOTIFY_TOKEN = 'm3VkQz7EpoRNSLApyouuv0I93ru27jmxT1K15xcN5ITSqRdzD9Hu9Yjw81qaoQUh';
+    var MAX_RESUME_MB = 5;
+    /* ================================== */
+
+    var scriptEl = document.currentScript;
+    var root = scriptEl.parentElement;
+    var form = root.querySelector('form');
+    var submitButton = root.querySelector('#form-submit-btn');
+    var success = root.querySelector('#form-success');
+    var error = root.querySelector('#form-error');
+    var formTitle = root.querySelector('#form-title');
+    var resumeInput = form ? form.querySelector("[name='attachment']") : null;
+    if (!form || !submitButton) return;
+
+    // Stop clicks on the form from bubbling to any parent link/wrapper
+    form.addEventListener('click', function (e) { e.stopPropagation(); });
+
+    // Phone field with country picker
+    var phoneTextBox = form.querySelector("[name='phone']");
+    var phoneField = window.intlTelInput(phoneTextBox, {
+      loadUtils: function () { return import("https://cdn.jsdelivr.net/npm/intl-tel-input@29.1.1/dist/js/utils.js"); },
+      initialCountry: "us"
+    });
+
+    resumeInput.addEventListener('change', function () { resumeInput.setCustomValidity(''); });
+
+    function readFileAsBase64(file) {
+      return new Promise(function (resolve, reject) {
+        var r = new FileReader();
+        r.onload = function () { resolve(String(r.result).split(',')[1]); };
+        r.onerror = function () { reject(new Error('Could not read resume')); };
+        r.readAsDataURL(file);
+      });
+    }
+
+    // Sends the application to the Worker, which emails the client through SendGrid
+    function sendEmailNotification(user_data, resumeFile) {
+      if (!NOTIFY_TOKEN || NOTIFY_TOKEN.indexOf('{{') === 0) return Promise.resolve();
+      var fd = new FormData();
+      fd.append('token', NOTIFY_TOKEN);
+      fd.append('client_name', 'Chad Love Services');
+      fd.append('fields', JSON.stringify(user_data));
+      if (resumeFile) fd.append('resume', resumeFile, resumeFile.name);
+      return fetch(NOTIFY_ENDPOINT, { method: 'POST', body: fd }).then(function (res) {
+        if (!res.ok) throw new Error('Email notification failed (' + res.status + ')');
+      });
+    }
+
+    submitButton.addEventListener('click', function () {
+      // Phone check
+      if (!phoneField.isValidNumber()) {
+        phoneTextBox.setCustomValidity("Please enter a valid phone number");
+        phoneTextBox.reportValidity();
+        function handlePhoneUpdate() {
+          if (phoneField.isValidNumber()) {
+            phoneTextBox.setCustomValidity("");
+            phoneTextBox.removeEventListener('input', handlePhoneUpdate);
+          }
+        }
+        phoneTextBox.addEventListener('input', handlePhoneUpdate);
+        return;
+      } else { phoneTextBox.setCustomValidity(""); }
+
+      // Resume size/type check
+      var resumeFile = resumeInput.files && resumeInput.files[0];
+      if (resumeFile) {
+        if (!/\.(pdf|docx?)$/i.test(resumeFile.name)) {
+          resumeInput.setCustomValidity('Upload a PDF, DOC or DOCX file.');
+        } else if (resumeFile.size > MAX_RESUME_MB * 1024 * 1024) {
+          resumeInput.setCustomValidity('Resume must be ' + MAX_RESUME_MB + ' MB or smaller.');
+        } else {
+          resumeInput.setCustomValidity('');
+        }
+      }
+
+      if (!form.checkValidity()) { form.reportValidity(); return; }
+
+      if (form.dataset.submitting === 'true') return;
+      form.dataset.submitting = 'true';
+      if (success) success.style.display = 'none';
+      if (error) error.style.display = 'none';
+      submitButton.disabled = true;
+      submitButton.style.opacity = '0.7';
+      submitButton.style.cursor = 'not-allowed';
+      submitButton.textContent = 'SENDING...';
+
+      var user_data = {
+        Name: form.querySelector("[name='name']").value || '',
+        Phone: phoneField.getNumber() || phoneTextBox.value || '',
+        Email: form.querySelector("[name='email']").value || '',
+        Date_Attending: form.querySelector("[name='date_attending']").value || '',
+        Positions: form.querySelector("[name='positions']").value || '',
+        Resume_File_Name: resumeFile ? resumeFile.name : '',
+        Message: form.querySelector("[name='message']").value || '',
+        contact_consent: form.querySelector("[name='consent']").checked ? 'I Agree' : ''
+      };
+
+      // Success if EITHER the email or ProfitFill succeeds; error only if both fail or nothing answers
+      var settled = false, emailResult = null, pfResult = null;
+      var emailOn = !!NOTIFY_TOKEN && NOTIFY_TOKEN.indexOf('{{') !== 0;
+      if (!emailOn) emailResult = false;
+      function settle() {
+        if (settled) return;
+        if (emailResult === true || pfResult === true) { settled = true; clearTimeout(timer); handleSuccess(); }
+        else if (emailResult === false && pfResult === false) { settled = true; clearTimeout(timer); handleError(); }
+      }
+      var timer = setTimeout(function () {
+        if (settled) return;
+        settled = true;
+        handleError();
+      }, 30000);
+
+      readFileAsBase64(resumeFile).then(function (base64) {
+        // 1) Email the client via SendGrid (runs alongside ProfitFill)
+        if (emailOn) {
+          sendEmailNotification(user_data, resumeFile)
+            .then(function () { emailResult = true; settle(); })
+            .catch(function (err) { console.error(err); emailResult = false; settle(); });
+        }
+
+        // 2) Hand off to ProfitFill as before
+        window.__pfActiveForm = {
+          onSuccess: function () { pfResult = true; settle(); },
+          onError: function () { pfResult = false; settle(); }
+        };
+        document.dispatchEvent(new CustomEvent('pfFormSent', {
+          detail: {
+            user_data: user_data,
+            form: form,
+            resume: { file: resumeFile, name: resumeFile.name, type: resumeFile.type, base64: base64 }
+          }
+        }));
+      }).catch(function (err) {
+        console.error(err);
+        if (settled) return;
+        settled = true;
+        clearTimeout(timer);
+        handleError();
+      });
+    });
+
+    function resetButton() {
+      form.dataset.submitting = 'false';
+      submitButton.disabled = false;
+      submitButton.style.opacity = '1';
+      submitButton.style.cursor = 'pointer';
+      submitButton.textContent = 'SEND MESSAGE';
+    }
+
+    function handleSuccess() {
+      if (error) error.style.display = 'none';
+      form.style.transition = 'opacity 0.3s ease';
+      form.style.opacity = '0';
+      setTimeout(function () {
+        form.style.display = 'none';
+        if (formTitle) formTitle.style.display = 'none';
+        if (success) {
+          success.style.display = 'flex';
+          success.style.opacity = '0';
+          success.style.transition = 'opacity 0.4s ease';
+          requestAnimationFrame(function () { success.style.opacity = '1'; });
+        }
+        form.dataset.submitting = 'false';
+      }, 300);
+    }
+
+    function handleError() {
+      if (error) error.style.display = 'block';
+      resetButton();
+    }
+  })();
+
+  // Global shim — ProfitFill calls these, we route to whichever form submitted
+  window.formSubmissionSuccess = function () {
+    if (window.__pfActiveForm) window.__pfActiveForm.onSuccess();
+  };
+  window.formSubmissionError = function () {
+    if (window.__pfActiveForm) window.__pfActiveForm.onError();
+  };
+</script>
