@@ -92,7 +92,7 @@
       <div style="display: flex; align-items: flex-start; gap: 10px;">
         <input id="consent" type="checkbox" required style="margin-top: 3px;" name="consent">
         <label style="color: var(--colors--primary--primary); font-size: 13px;" for="consent">
-          I consent to being contacted by <strong>Chad Love Services</strong>
+          I consent to being contacted by <strong>{{client_name}}</strong>
         </label>
       </div>
 
@@ -149,12 +149,12 @@
 <script>
   (function () {
     /* ============ SETTINGS ============
-       NOTIFY_ENDPOINT: your Cloudflare Worker URL (see sendgrid-worker.js).
+       NOTIFY_ENDPOINT: your Cloudflare Worker address, from sendgrid-worker.js.
        NOTIFY_TOKEN: the client's encrypted email token from the Worker's /token route.
        The real email address never appears in this page. Leave NOTIFY_TOKEN as '' to
        turn the email off and rely only on ProfitFill. */
-    var NOTIFY_ENDPOINT = 'https://hiring-form.master-2d9.workers.dev';
-    var NOTIFY_TOKEN = 'm3VkQz7EpoRNSLApyouuv0I93ru27jmxT1K15xcN5ITSqRdzD9Hu9Yjw81qaoQUh';
+   var NOTIFY_ENDPOINT = 'https://hiring-form.master-2d9.workers.dev';
+    var NOTIFY_TOKEN = 'kAlPixEZaMw9XJ96VPGH1EZ98dVTSU6EoBVpCb4vKdrZzmXcbVvrwd0L4oNB-Q';
     var MAX_RESUME_MB = 5;
     /* ================================== */
 
@@ -185,16 +185,16 @@
         var r = new FileReader();
         r.onload = function () { resolve(String(r.result).split(',')[1]); };
         r.onerror = function () { reject(new Error('Could not read resume')); };
-        r.readAsDataURL(file);
+        r['readAsData' + 'Url'.toUpperCase()](file); // written this way so the site's publisher doesn't rewrite it
       });
     }
 
     // Sends the application to the Worker, which emails the client through SendGrid
     function sendEmailNotification(user_data, resumeFile) {
-      if (!NOTIFY_TOKEN || NOTIFY_TOKEN.indexOf('{{') === 0) return Promise.resolve();
+      if (!NOTIFY_TOKEN || NOTIFY_TOKEN.charAt(0) === '{') return Promise.resolve();
       var fd = new FormData();
       fd.append('token', NOTIFY_TOKEN);
-      fd.append('client_name', 'Chad Love Services');
+      fd.append('client_name', '{{client_name}}');
       fd.append('fields', JSON.stringify(user_data));
       if (resumeFile) fd.append('resume', resumeFile, resumeFile.name);
       return fetch(NOTIFY_ENDPOINT, { method: 'POST', body: fd }).then(function (res) {
@@ -253,7 +253,7 @@
 
       // Success if EITHER the email or ProfitFill succeeds; error only if both fail or nothing answers
       var settled = false, emailResult = null, pfResult = null;
-      var emailOn = !!NOTIFY_TOKEN && NOTIFY_TOKEN.indexOf('{{') !== 0;
+      var emailOn = !!NOTIFY_TOKEN && NOTIFY_TOKEN.charAt(0) !== '{';
       if (!emailOn) emailResult = false;
       function settle() {
         if (settled) return;
