@@ -40,8 +40,8 @@
 
       <!-- PHONE -->
       <div style="display: flex; flex-direction: column;">
-        <label style="color: var(--colors--primary--primary); font-weight: 600; margin-bottom: 6px;"
-          for="phone">Phone #</label>
+        <label style="color: var(--colors--primary--primary); font-weight: 600; margin-bottom: 6px;" for="phone">Phone
+          #</label>
         <input id="phone" type="tel" name="phone" required autocomplete="tel"
           style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #ccc; box-sizing: border-box;">
       </div>
@@ -72,9 +72,9 @@
 
       <!-- RESUME UPLOAD -->
       <div style="display: flex; flex-direction: column;">
-        <label style="color: var(--colors--primary--primary); font-weight: 600; margin-bottom: 6px;"
-          for="resume">Upload Resume</label>
-        <input id="resume" type="file" name="attachment" required
+        <label style="color: var(--colors--primary--primary); font-weight: 600; margin-bottom: 6px;" for="resume">Upload
+          Resume</label>
+        <input id="resume" type="file" name="attachment"
           accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
           style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #ccc; background: #fff; box-sizing: border-box; font-family: inherit;">
         <span style="font-size: 12px; color: #666; margin-top: 4px;">PDF, DOC or DOCX, up to 5 MB.</span>
@@ -153,7 +153,7 @@
        NOTIFY_TOKEN: the client's encrypted email token from the Worker's /token route.
        The real email address never appears in this page. Leave NOTIFY_TOKEN as '' to
        turn the email off and rely only on ProfitFill. */
-   var NOTIFY_ENDPOINT = 'https://hiring-form.master-2d9.workers.dev';
+    var NOTIFY_ENDPOINT = 'https://hiring-form.master-2d9.workers.dev';
     var NOTIFY_TOKEN = 'kAlPixEZaMw9XJ96VPGH1EZ98dVTSU6EoBVpCb4vKdrZzmXcbVvrwd0L4oNB-Q';
     var MAX_RESUME_MB = 5;
     /* ================================== */
@@ -182,6 +182,7 @@
 
     function readFileAsBase64(file) {
       return new Promise(function (resolve, reject) {
+        if (!file) { resolve(''); return; }
         var r = new FileReader();
         r.onload = function () { resolve(String(r.result).split(',')[1]); };
         r.onerror = function () { reject(new Error('Could not read resume')); };
@@ -283,7 +284,7 @@
           detail: {
             user_data: user_data,
             form: form,
-            resume: { file: resumeFile, name: resumeFile.name, type: resumeFile.type, base64: base64 }
+            resume: resumeFile ? { file: resumeFile, name: resumeFile.name, type: resumeFile.type, base64: base64 } : null
           }
         }));
       }).catch(function (err) {
