@@ -89,7 +89,7 @@ async function sendApplication(request, env, cors) {
 
   // Email body
   const labels = {
-    Name: 'Name', Phone: 'Phone #', Email: 'Email', Date_Attending: 'Date Attending',
+    Name: 'Name', Phone: 'Phone #', Email: 'Email', Date_Attending: 'Which Hiring Event are you Planning to Attend?',
     Positions: 'Position(s) interested in', Resume_File_Name: 'Resume',
     Message: 'Message', contact_consent: 'Consent'
   };
